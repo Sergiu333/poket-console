@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Impuls Monitor</title>
+    <style>
+        body {
+            font-family: monospace;
+            background: #111;
+            color: #0f0;
+            padding: 1rem;
+        }
+        #log {
+            white-space: pre-line;
+        }
+    </style>
+</head>
+<body>
+<h2>📈 Impuls Monitor</h2>
+<div id="log">Începem monitorizarea...</div>
+
+<script>
+    async function fetchData() {
+        try {
+            const res = await fetch('https://poket-gamma.vercel.app');
+            const data = await res.json();
+            const log = document.getElementById('log');
+            const now = new Date().toLocaleTimeString();
+
+            if (data && data.message) {
+                log.textContent = `[${now}] ${data.message}\n\n` + log.textContent;
+            } else {
+                log.textContent = `[${now}] Fără răspuns util...\n\n` + log.textContent;
+            }
+        } catch (err) {
+            document.getElementById('log').textContent =
+                `[${new Date().toLocaleTimeString()}] Eroare: ${err.message}\n\n` +
+                document.getElementById('log').textContent;
+        }
+    }
+
+    // Apelează API-ul la fiecare 5 secunde
+    setInterval(fetchData, 5000);
+    fetchData();
+</script>
+</body>
+</html>
