@@ -22,15 +22,17 @@
 <script>
     async function fetchData() {
         try {
-            const res = await fetch('https://poket-gamma.vercel.app');
+            const res = await fetch('https://poket-gamma.vercel.app/signal');
             const data = await res.json();
             const log = document.getElementById('log');
             const now = new Date().toLocaleTimeString();
 
-            if (data && data.message) {
-                log.textContent = `[${now}] ${data.message}\n\n` + log.textContent;
+            if (data && data.type) {
+                // Afișează semnalul real
+                const output = `[${now}] ${data.type} | ${data.direction} | ${data.price} | ${data.time}`;
+                log.textContent = output + "\n\n" + log.textContent;
             } else {
-                log.textContent = `[${now}] Fără răspuns util...\n\n` + log.textContent;
+                log.textContent = `[${now}] Fără semnal activ...\n\n` + log.textContent;
             }
         } catch (err) {
             document.getElementById('log').textContent =
@@ -39,9 +41,9 @@
         }
     }
 
-    // Apelează API-ul la fiecare 5 secunde
-    setInterval(fetchData, 5000);
+    setInterval(fetchData, 1000);
     fetchData();
 </script>
+
 </body>
 </html>
