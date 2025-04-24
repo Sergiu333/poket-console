@@ -1,41 +1,88 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Semnal Binance</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semnale de Tranzacționare</title>
     <style>
         body {
-            background: #0d1117;
-            color: #c9d1d9;
-            font-family: monospace;
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f9;
             padding: 20px;
+            color: #333;
         }
-        #signal {
-            white-space: pre-wrap;
-            background: #161b22;
+        h1 {
+            text-align: center;
+        }
+        .signal-container {
+            max-width: 600px;
+            margin: 0 auto;
+            background-color: #fff;
             padding: 20px;
             border-radius: 10px;
-            border: 1px solid #30363d;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .signal {
+            background-color: #e0f7fa;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            font-size: 16px;
+            white-space: pre-wrap;
+        }
+        .loading {
+            font-size: 18px;
+            text-align: center;
+            color: #00796b;
         }
     </style>
 </head>
 <body>
-<h1>📡 Semnal de Impuls Binance</h1>
-<div id="signal">Se încarcă...</div>
+
+<h1>Semnale de Tranzacționare</h1>
+<div id="signalContainer" class="signal-container">
+    <div class="loading">Aștept semnale...</div>
+</div>
 
 <script>
-    async function fetchSignal() {
-        try {
-            const res = await fetch("https://poket-gamma.vercel.app/signal");
-            const text = await res.text();
-            document.getElementById("signal").innerHTML = text;
-        } catch (err) {
-            document.getElementById("signal").innerText = "Eroare la obținerea semnalului.";
-        }
-    }
+    const socket = new WebSocket("ws://localhost:3000");
 
-    fetchSignal();
-    setInterval(fetchSignal, 100); // Actualizare la fiecare 3 secunde
+    const signalContainer = document.getElementById('signalContainer');
+
+    socket.onopen = function(event) {
+        console.log("Conexiune WebSocket deschisă");
+    };
+
+    socket.onmessage = function(event) {
+        // Când primim un semnal de la server
+        console.log("Semnal primit:", event.data);
+        updateSignal(event.data);
+    };
+
+    socket.onerror = function(event) {
+        console.error("Eroare WebSocket:", event);
+    };
+
+    socket.onclose = function(event) {
+        console.log("Conexiune WebSocket închisă");
+    };
+
+    // Funcție pentru actualizarea semnalului
+    function updateSignal(signal) {
+        // Ascundem mesajul de loading
+        const loadingElement = signalContainer.querySelector('.loading');
+        if (loadingElement) {
+            loadingElement.style.display = 'none';
+        }
+
+        // Creăm un nou element pentru semnalul primit
+        const signalElement = document.createElement('div');
+        signalElement.className = 'signal';
+        signalElement.textContent = signal;
+
+        // Adăugăm semnalul în container
+        signalContainer.appendChild(signalElement);
+    }
 </script>
 </body>
 </html>
