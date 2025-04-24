@@ -3,86 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semnale de Tranzacționare</title>
+    <title>Semnale Binance</title>
     <style>
         body {
             font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
             background-color: #f4f4f9;
-            padding: 20px;
-            color: #333;
-        }
-        h1 {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
             text-align: center;
         }
-        .signal-container {
-            max-width: 600px;
-            margin: 0 auto;
+        .container {
             background-color: #fff;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 600px;
         }
-        .signal {
-            background-color: #e0f7fa;
+        h1 {
+            color: #333;
+        }
+        pre {
+            background-color: #f7f7f7;
+            border: 1px solid #ddd;
             padding: 15px;
-            margin: 10px 0;
             border-radius: 5px;
-            font-size: 16px;
+            font-size: 14px;
             white-space: pre-wrap;
+            word-wrap: break-word;
+            color: #333;
         }
         .loading {
             font-size: 18px;
-            text-align: center;
-            color: #00796b;
+            color: #888;
         }
     </style>
 </head>
 <body>
-
-<h1>Semnale de Tranzacționare</h1>
-<div id="signalContainer" class="signal-container">
-    <div class="loading">Aștept semnale...</div>
+<div class="container">
+    <h1>Semnale Binance</h1>
+    <p id="loadingText" class="loading">Se caută semnalele...</p>
+    <div id="signalContainer"></div>
 </div>
 
 <script>
-    const socket = new WebSocket("ws://localhost:3000");
+    async function fetchSignal() {
+        try {
+            const response = await fetch('http://10.11.9.37:3000/signal');
+            const data = await response.text();
 
-    const signalContainer = document.getElementById('signalContainer');
+            if (data.includes("Niciun semnal detectat încă")) {
+                document.getElementById('signalContainer').innerHTML = `<p>${data}</p>`;
+            } else {
+                document.getElementById('signalContainer').innerHTML = `<pre>${data}</pre>`;
+            }
 
-    socket.onopen = function(event) {
-        console.log("Conexiune WebSocket deschisă");
-    };
-
-    socket.onmessage = function(event) {
-        // Când primim un semnal de la server
-        console.log("Semnal primit:", event.data);
-        updateSignal(event.data);
-    };
-
-    socket.onerror = function(event) {
-        console.error("Eroare WebSocket:", event);
-    };
-
-    socket.onclose = function(event) {
-        console.log("Conexiune WebSocket închisă");
-    };
-
-    // Funcție pentru actualizarea semnalului
-    function updateSignal(signal) {
-        // Ascundem mesajul de loading
-        const loadingElement = signalContainer.querySelector('.loading');
-        if (loadingElement) {
-            loadingElement.style.display = 'none';
+            document.getElementById('loadingText').style.display = 'none'; // ascunde textul de loading
+        } catch (error) {
+            document.getElementById('loadingText').innerText = "Eroare la obținerea semnalelor.";
+            console.error('Eroare la fetch:', error);
         }
-
-        // Creăm un nou element pentru semnalul primit
-        const signalElement = document.createElement('div');
-        signalElement.className = 'signal';
-        signalElement.textContent = signal;
-
-        // Adăugăm semnalul în container
-        signalContainer.appendChild(signalElement);
     }
+
+    // Apelăm funcția pentru a încărca semnalele când pagina se încarcă
+    window.onload = fetchSignal;
+
+    // Verificăm semnalele la fiecare 5 secunde
+    setInterval(fetchSignal, 100);
 </script>
+
 </body>
 </html>
