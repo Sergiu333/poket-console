@@ -2,48 +2,40 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Impuls Monitor</title>
+    <title>Semnal Binance</title>
     <style>
         body {
+            background: #0d1117;
+            color: #c9d1d9;
             font-family: monospace;
-            background: #111;
-            color: #0f0;
-            padding: 1rem;
+            padding: 20px;
         }
-        #log {
-            white-space: pre-line;
+        #signal {
+            white-space: pre-wrap;
+            background: #161b22;
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid #30363d;
         }
     </style>
 </head>
 <body>
-<h2>📈 Impuls Monitor</h2>
-<div id="log">Începem monitorizarea...</div>
+<h1>📡 Semnal de Impuls Binance</h1>
+<div id="signal">Se încarcă...</div>
 
 <script>
-    async function fetchData() {
+    async function fetchSignal() {
         try {
-            const res = await fetch('https://poket-gamma.vercel.app/signal');
-            const data = await res.json();
-            const log = document.getElementById('log');
-            const now = new Date().toLocaleTimeString();
-
-            if (data && data.type) {
-                // Afișează semnalul real
-                const output = `[${now}] ${data.type} | ${data.direction} | ${data.price} | ${data.time}`;
-                log.textContent = output + "\n\n" + log.textContent;
-            } else {
-                log.textContent = `[${now}] Fără semnal activ...\n\n` + log.textContent;
-            }
+            const res = await fetch("https://poket-gamma.vercel.app/signal");
+            const text = await res.text();
+            document.getElementById("signal").innerHTML = text;
         } catch (err) {
-            document.getElementById('log').textContent =
-                `[${new Date().toLocaleTimeString()}] Eroare: ${err.message}\n\n` +
-                document.getElementById('log').textContent;
+            document.getElementById("signal").innerText = "Eroare la obținerea semnalului.";
         }
     }
 
-    setInterval(fetchData, 1000);
-    fetchData();
+    fetchSignal();
+    setInterval(fetchSignal, 3000); // Actualizare la fiecare 3 secunde
 </script>
-
 </body>
 </html>
